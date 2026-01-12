@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<title>Daftar Murid Kokurikulum</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body { font-family: 'Poppins', sans-serif; background: #f0f4f7; margin: 0; }
+nav { text-align: center; margin-bottom: 20px; }
+nav a { text-decoration: none; color: white; background:#3498db; padding:10px 20px; border-radius:6px; margin:0 5px; }
+nav a:hover { background:#2980b9; }
+h2 { text-align: center; color: #2c3e50; }
+form {
+  max-width: 600px; margin: auto; background: white; padding: 25px;
+  border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+label { display:block; margin-top:15px; font-weight:600; color:#2c3e50; }
+input, select {
+  width:100%; padding:10px; margin-top:5px; border:1px solid #ccc; border-radius:6px;
+}
+button {
+  margin-top: 20px; width: 100%; background: #3498db; border: none; color: white;
+  padding: 15px; font-size: 16px; border-radius: 8px; cursor: pointer;
+}
+button:hover { background:#2980b9; }
+#mesej { text-align:center; margin-top:15px; font-weight:bold; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html">🏠 Utama</a>
+  <a href="senarai.html">📋 Senarai Murid</a>
+  <a href="dashboard.html">📊 Dashboard</a>
+</nav>
+
+<h2>🧾 Daftar Murid Kokurikulum SK DATUK NAN KAYA</h2>
+
+<form id="daftarForm">
+  <label for="kelas">Kelas</label>
+  <input type="text" id="kelas" placeholder="Contoh: 5 EFEKTIF" required>
+
+  <label for="nama">Nama Murid</label>
+  <input type="text" id="nama" placeholder="Contoh: AHMAD ALBAB BIN AHMAD" required>
+
+  <label for="mykid">No. MyKid</label>
+  <input type="text" id="mykid" placeholder="Contoh: 050321101234" required>
+
+  <label for="unit">Unit Beruniform</label>
+  <select id="unit" required>
+    <option value="">-- Pilih Unit --</option>
+    <option value="Pengakap">Pengakap</option>
+  </select>
+
+  <label for="kelab">Kelab / Persatuan</label>
+  <select id="kelab" required>
+    <option value="">-- Pilih Kelab --</option>
+    <option value="Persatuan Sains dan Matematik">Persatuan Sains dan Matematik</option>
+    <option value="Persatuan Bahasa">Persatuan Bahasa</option>
+    <option value="Persatuan Agama Islam">Persatuan Agama Islam</option>
+    <option value="Kelab Pencegahan Jenayah dan Dadah">Kelab Pencegahan Jenayah dan Dadah</option>
+    <option value="Kelab Rukun Negara dan Alam Sekitar">Kelab Rukun Negara dan Alam Sekitar</option>
+  </select>
+
+  <label for="sukan">Sukan / Permainan</label>
+  <select id="sukan" required>
+    <option value="">-- Pilih Sukan --</option>
+    <option value="Bola Baling">Bola Baling</option>
+    <option value="Olahraga">Olahraga</option>
+  </select>
+
+  <button type="submit">💾 Hantar Maklumat</button>
+</form>
+
+<div id="mesej"></div>
+
+<script>
+// Gantikan dengan URL Web App Google Apps Script cikgu
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby6se_oofVNBtIDNHNf4-owN8ONs_WJ4rU95P4TsBfccuZjj_7qv8L803UDfmL_FLCS/exec";
+
+document.getElementById("daftarForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  const data = {
+    kelas: document.getElementById("kelas").value,
+    nama: document.getElementById("nama").value,
+    mykid: document.getElementById("mykid").value,
+    unit: document.getElementById("unit").value,
+    kelab: document.getElementById("kelab").value,
+    sukan: document.getElementById("sukan").value
+  };
+
+  fetch(WEB_APP_URL, {
+    method: "POST",
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(res => {
+    if(res.status === "berjaya"){
+      document.getElementById("mesej").innerText = "✅ Rekod murid berjaya disimpan!";
+      document.getElementById("daftarForm").reset();
+    } else {
+      document.getElementById("mesej").innerText = "⚠️ Gagal: " + res.mesej;
+    }
+  })
+  .catch(err => {
+    document.getElementById("mesej").innerText = "❌ Ralat: " + err;
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Kokurikulum | SK Datuk Nan Kaya</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<nav>
+<a href="index.html">🏠 Utama</a>
+<a href="daftar.html">🧾 Daftar Murid</a>
+<a href="senarai.html">📋 Senarai Murid</a>
+</nav>
+
+<h2>📊 Dashboard Kokurikulum SK DATUK NAN KAYA</h2>
+<div id="loading">Memuatkan data...</div>
+
+<div class="dashboard" id="dashboard" style="display:none;">
+  <div class="card"><h3>Unit Beruniform</h3><canvas id="chartUnit"></canvas></div>
+  <div class="card"><h3>Kelab / Persatuan</h3><canvas id="chartKelab"></canvas></div>
+  <div class="card"><h3>Sukan / Permainan</h3><canvas id="chartSukan"></canvas></div>
+  <div class="card"><h3>Rumah Sukan</h3><canvas id="chartRumah"></canvas></div>
+</div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby6se_oofVNBtIDNHNf4-owN8ONs_WJ4rU95P4TsBfccuZjj_7qv8L803UDfmL_FLCS/exec?action=dapatkan";
+
+function muatDataDashboard(){
+  fetch(WEB_APP_URL)
+    .then(r=>r.json())
+    .then(data=>{
+      if(!data || data.length===0){
+        document.getElementById("loading").innerText="⚠️ Tiada data untuk dipaparkan.";
+        return;
+      }
+      document.getElementById("loading").style.display="none";
+      document.getElementById("dashboard").style.display="flex";
+      janaCarta(data);
+    })
+    .catch(err=>{document.getElementById("loading").innerText="❌ Ralat memuatkan data: "+err;});
+}
+
+function kiraKategori(data,key){
+  const kiraan={};
+  data.forEach(item=>{
+    const nilai = item[key] || "Tidak Ditetapkan";
+    kiraan[nilai] = (kiraan[nilai]||0)+1;
+  });
+  return kiraan;
+}
+
+function janaCarta(data){
+  buatCarta("chartUnit","Bilangan Ahli Unit Beruniform",kiraKategori(data,"unit"));
+  buatCarta("chartKelab","Bilangan Ahli Kelab/Persatuan",kiraKategori(data,"kelab"));
+  buatCarta("chartSukan","Bilangan Ahli Sukan/Permainan",kiraKategori(data,"sukan"));
+  buatCarta("chartRumah","Bilangan Murid Rumah Sukan",kiraKategori(data,"rumah"));
+}
+
+function buatCarta(id,label,dataObj){
+  const ctx=document.getElementById(id).getContext("2d");
+  const labelSenarai = Object.keys(dataObj);
+  const nilaiSenarai = Object.values(dataObj);
+
+  let bgColor = [];
+  if(id==="chartRumah"){
+    labelSenarai.forEach(l=>{
+      if(l.toLowerCase()==="merah") bgColor.push("#e74c3c");
+      else if(l.toLowerCase()==="biru") bgColor.push("#3498db");
+      else bgColor.push("#95a5a6");
+    });
+  } else {
+    const warna=["#3498db","#2ecc71","#f1c40f","#e67e22","#9b59b6","#1abc9c","#e67e22","#34495e","#ff9ff3","#48dbfb","#f368e0","#10ac84"];
+    bgColor = warna;
+  }
+
+  new Chart(ctx,{
+    type:"bar",
+    data:{labels:labelSenarai,datasets:[{label:label,data:nilaiSenarai,backgroundColor:bgColor}]},
+    options:{
+      responsive:true,
+      plugins:{legend:{display:false}},
+      onClick:(evt,item)=>{
+        if(item.length>0){
+          const idx = item[0].index;
+          localStorage.setItem("tapisKategori",id);
+          localStorage.setItem("tapisNilai",labelSenarai[idx]);
+          window.location.href="senarai.html";
+        }
+      }
+    }
+  });
+}
+
+window.onload = muatDataDashboard;
+</script>
+</body>
+</html>
