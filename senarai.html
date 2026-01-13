@@ -2,36 +2,33 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
-<title>Senarai Murid | SK Datuk Nan Kaya</title>
+<title>Senarai Murid | SK Datuk Nankaya</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <nav>
-  <a href="index.html">🏠 Utama</a>
-  <a href="daftar.html">🧾 Daftar Murid</a>
-  <a href="dashboard.html">📊 Dashboard</a>
+<a href="index.html">🏠 Utama</a>
+<a href="daftar.html">🧾 Daftar Murid</a>
+<a href="dashboard.html">📊 Dashboard</a>
 </nav>
 
 <h2>📋 Senarai Murid Kokurikulum</h2>
 
 <div id="loading">Memuatkan data murid...</div>
 
-<!-- Butang cetak -->
-<button id="btnCetak" onclick="cetakPDF()" style="display:none; margin:10px 0; padding:5px 10px;">🖨 Cetak Jadual</button>
-
 <table id="jadual" style="display:none;">
-  <thead>
-    <tr id="theadRow">
-      <th>Kelas</th>
-      <th>Nama Murid</th>
-      <th>No MyKid</th>
-      <th>Unit Beruniform</th>
-      <th>Kelab / Persatuan</th>
-      <th>Sukan / Permainan</th>
-      <th>Rumah Sukan</th>
-    </tr>
-  </thead>
-  <tbody id="dataBody"></tbody>
+<thead>
+<tr id="theadRow">
+<th>Kelas</th>
+<th>Nama Murid</th>
+<th>No MyKid</th>
+<th>Unit Beruniform</th>
+<th>Kelab / Persatuan</th>
+<th>Sukan / Permainan</th>
+<th>Rumah Sukan</th>
+</tr>
+</thead>
+<tbody id="dataBody"></tbody>
 </table>
 
 <button class="kembali" onclick="window.location.href='dashboard.html'">🔙 Kembali ke Dashboard</button>
@@ -40,27 +37,24 @@
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby6se_oofVNBtIDNHNf4-owN8ONs_WJ4rU95P4TsBfccuZjj_7qv8L803UDfmL_FLCS/exec?action=dapatkan";
 let semuaData = [];
 
-// =======================
-// Muat Data dari Google Sheet
-// =======================
-async function muatData() {
-  try {
-    const res = await fetch(WEB_APP_URL);
-    semuaData = await res.json();
-    paparJadualFull(semuaData);
-  } catch (err) {
-    document.getElementById("loading").innerText = "Ralat: " + err;
-  }
+// Muat data dari Google Sheets
+function muatData() {
+  return fetch(WEB_APP_URL)
+    .then(r => r.json())
+    .then(data => {
+      semuaData = data;
+      paparJadualFull(data);
+    })
+    .catch(err => {
+      document.getElementById("loading").innerText="Ralat:"+err;
+    });
 }
 
-// =======================
-// Papar semua data penuh (7 kolum)
-// =======================
-function paparJadualFull(data) {
+// Papar semua data lengkap (7 kolum)
+function paparJadualFull(data){
   const tbody = document.getElementById("dataBody");
   const theadRow = document.getElementById("theadRow");
-  const btnCetak = document.getElementById("btnCetak");
-
+  
   theadRow.innerHTML = `
     <th>Kelas</th>
     <th>Nama Murid</th>
@@ -70,154 +64,94 @@ function paparJadualFull(data) {
     <th>Sukan / Permainan</th>
     <th>Rumah Sukan</th>
   `;
-
+  
   tbody.innerHTML = "";
-  if (!data || data.length === 0) {
-    tbody.innerHTML = "<tr><td colspan='7'>Tiada rekod murid.</td></tr>";
+  if(data.length===0){
+    tbody.innerHTML="<tr><td colspan='7'>Tiada rekod murid.</td></tr>";
   } else {
-    data.forEach(item => {
-      tbody.innerHTML += `
-        <tr>
-          <td>${item.kelas || ""}</td>
-          <td>${item.nama || ""}</td>
-          <td>${item.mykid || ""}</td>
-          <td>${item.unit || ""}</td>
-          <td>${item.kelab || ""}</td>
-          <td>${item.sukan || ""}</td>
-          <td>${item.rumah || ""}</td>
-        </tr>`;
+    data.forEach(item=>{
+      tbody.innerHTML+=`<tr>
+        <td>${item.kelas}</td>
+        <td>${item.nama}</td>
+        <td>${item.mykid}</td>
+        <td>${item.unit}</td>
+        <td>${item.kelab}</td>
+        <td>${item.sukan}</td>
+        <td>${item.rumah}</td>
+      </tr>`;
     });
   }
-
-  document.getElementById("loading").style.display = "none";
-  document.getElementById("jadual").style.display = "table";
-  btnCetak.style.display = "inline-block";
+  document.getElementById("loading").style.display="none";
+  document.getElementById("jadual").style.display="table";
 }
 
-// =======================
-// Papar data yang ditapis (3 kolum sahaja)
-// =======================
-function paparJadualTapis(data, kolum) {
+// Papar senarai murid tapis (3 kolum)
+function paparJadualTapis(data, kolum){
   const tbody = document.getElementById("dataBody");
   const theadRow = document.getElementById("theadRow");
-  const btnCetak = document.getElementById("btnCetak");
-
+  
+  // Tajuk kolum 3 ikut bar yang diklik
   theadRow.innerHTML = `
     <th>Nama Murid</th>
     <th>No MyKid</th>
     <th>${kolum.charAt(0).toUpperCase() + kolum.slice(1)}</th>
   `;
-
+  
   tbody.innerHTML = "";
-  if (!data || data.length === 0) {
+  if(data.length===0){
     tbody.innerHTML = "<tr><td colspan='3'>Tiada rekod murid.</td></tr>";
   } else {
-    data.forEach(item => {
-      tbody.innerHTML += `
-        <tr>
-          <td>${item.nama || ""}</td>
-          <td>${item.mykid || ""}</td>
-          <td>${item[kolum] || ""}</td>
-        </tr>`;
+    data.forEach(item=>{
+      tbody.innerHTML+=`<tr>
+        <td>${item.nama}</td>
+        <td>${item.mykid}</td>
+        <td>${item[kolum]}</td>
+      </tr>`;
     });
   }
-
-  document.getElementById("loading").style.display = "none";
-  document.getElementById("jadual").style.display = "table";
-  btnCetak.style.display = "inline-block";
+  
+  document.getElementById("loading").style.display="none";
+  document.getElementById("jadual").style.display="table";
 }
 
-// =======================
-// Klik bar di dashboard
-// =======================
-function tapisDariDashboard(kategori, nilai) {
+// Tapis data ikut bar klik
+function tapisDariDashboard(kategori, nilai){
   let hasil = [];
   let kolumTapis = "";
 
-  nilai = nilai ? nilai.toLowerCase() : "";
-
-  if (kategori === "chartUnit") {
-    hasil = semuaData.filter(i => i.unit && i.unit.toLowerCase() === nilai);
+  if(kategori==="chartUnit"){ 
+    hasil = semuaData.filter(i=>i.unit && i.unit.toLowerCase()===nilai.toLowerCase());
     kolumTapis = "unit";
-  } else if (kategori === "chartKelab") {
-    hasil = semuaData.filter(i => i.kelab && i.kelab.toLowerCase() === nilai);
+  }
+  if(kategori==="chartKelab"){ 
+    hasil = semuaData.filter(i=>i.kelab && i.kelab.toLowerCase()===nilai.toLowerCase());
     kolumTapis = "kelab";
-  } else if (kategori === "chartSukan") {
-    hasil = semuaData.filter(i => i.sukan && i.sukan.toLowerCase() === nilai);
+  }
+  if(kategori==="chartSukan"){ 
+    hasil = semuaData.filter(i=>i.sukan && i.sukan.toLowerCase()===nilai.toLowerCase());
     kolumTapis = "sukan";
-  } else if (kategori === "chartRumah") {
-    hasil = semuaData.filter(i => i.rumah && i.rumah.toLowerCase() === nilai);
+  }
+  if(kategori==="chartRumah"){ 
+    hasil = semuaData.filter(i=>i.rumah && i.rumah.toLowerCase()===nilai.toLowerCase());
     kolumTapis = "rumah";
   }
 
   paparJadualTapis(hasil, kolumTapis);
 }
 
-// =======================
-// Fungsi Cetak PDF
-// =======================
-function cetakPDF() {
-  const jadual = document.getElementById("jadual");
-  const dataRows = document.getElementById("dataBody").rows;
-
-  if (jadual.style.display === "none" || dataRows.length === 0) {
-    alert("Tiada data untuk dicetak!");
-    return;
-  }
-
-  let tableContent = "";
-  for (let i = 0; i < dataRows.length; i++) {
-    tableContent += "<tr>";
-    for (let j = 0; j < dataRows[i].cells.length; j++) {
-      tableContent += "<td>" + dataRows[i].cells[j].innerText + "</td>";
+// Jalankan bila page load
+window.onload = () => {
+  muatData().then(()=>{
+    const kategori = localStorage.getItem("tapisKategori");
+    const nilai = localStorage.getItem("tapisNilai");
+    if(kategori && nilai){
+      tapisDariDashboard(kategori, nilai);
+      localStorage.removeItem("tapisKategori");
+      localStorage.removeItem("tapisNilai");
     }
-    tableContent += "</tr>";
-  }
-
-  const headerRow = document.getElementById("theadRow").innerHTML;
-
-  const newWindow = window.open("", "", "width=900,height=700");
-  newWindow.document.write(`
-    <html>
-    <head>
-      <title>Cetak Data Kokurikulum - SK Datuk Nan Kaya</title>
-      <style>
-        body { font-family: Arial; padding:20px; }
-        h2 { text-align:center; }
-        table { width:100%; border-collapse: collapse; margin-top:15px; }
-        th, td { border:1px solid #ccc; padding:8px; }
-        th { background:#2980b9; color:white; text-align:center; }
-        td { text-align:left; }
-      </style>
-    </head>
-    <body>
-      <h2>SK Datuk Nan Kaya - Data Kokurikulum</h2>
-      <table>
-        <thead><tr>${headerRow}</tr></thead>
-        <tbody>${tableContent}</tbody>
-      </table>
-      <script>window.print();</script>
-    </body>
-    </html>
-  `);
-}
-
-// =======================
-// Bila page load
-// =======================
-window.onload = async () => {
-  await muatData();
-
-  // Semak jika datang dari dashboard
-  const kategori = localStorage.getItem("tapisKategori");
-  const nilai = localStorage.getItem("tapisNilai");
-
-  if (kategori && nilai) {
-    tapisDariDashboard(kategori, nilai);
-    localStorage.removeItem("tapisKategori");
-    localStorage.removeItem("tapisNilai");
-  }
+  });
 };
 </script>
+
 </body>
 </html>
