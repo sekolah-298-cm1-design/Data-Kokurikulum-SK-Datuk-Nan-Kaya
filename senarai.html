@@ -205,19 +205,19 @@ function cetakPDF() {
 // =======================
 // Bila page load
 // =======================
-window.onload = async () => {
-  await muatData();
-
-  // Semak jika datang dari dashboard
-  const kategori = localStorage.getItem("tapisKategori");
-  const nilai = localStorage.getItem("tapisNilai");
-
-  if (kategori && nilai) {
-    tapisDariDashboard(kategori, nilai);
-    localStorage.removeItem("tapisKategori");
-    localStorage.removeItem("tapisNilai");
-  }
+window.onload = () => {
+  muatData().then(()=>{
+    const kategori = localStorage.getItem("tapisKategori");
+    const nilai = localStorage.getItem("tapisNilai");
+    if(kategori && nilai){
+      tapisDariDashboard(kategori, nilai);
+      localStorage.removeItem("tapisKategori");
+      localStorage.removeItem("tapisNilai");
+    }
+  });
 };
 </script>
+
 </body>
 </html>
+
