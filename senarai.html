@@ -2,7 +2,7 @@
 <html lang="ms">
 <head>
 <meta charset="UTF-8">
-<title>Senarai Murid | SK Datuk Nankaya</title>
+<title>Senarai Murid | SK Datuk Nan Kaya</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,6 +15,9 @@
 <h2>📋 Senarai Murid Kokurikulum</h2>
 
 <div id="loading">Memuatkan data murid...</div>
+
+<!-- Button Cetak PDF -->
+<button onclick="cetakPDF()" style="margin:10px 0; padding:5px 10px;">🖨 Cetak Jadual</button>
 
 <table id="jadual" style="display:none;">
 <thead>
@@ -137,6 +140,66 @@ function tapisDariDashboard(kategori, nilai){
   }
 
   paparJadualTapis(hasil, kolumTapis);
+}
+
+// ===== Fungsi Cetak PDF =====
+function cetakPDF(){
+  const jadual = document.getElementById("jadual");
+  if(jadual.style.display === "none" || semuaData.length===0){
+    alert("Tiada data untuk dicetak!");
+    return;
+  }
+
+  // Salin data dari tbody
+  let tableContent = "";
+  const rows = document.getElementById("dataBody").rows;
+  for(let i=0;i<rows.length;i++){
+    tableContent += "<tr>";
+    for(let j=0;j<rows[i].cells.length;j++){
+      tableContent += "<td>"+rows[i].cells[j].innerText+"</td>";
+    }
+    tableContent += "</tr>";
+  }
+
+  // Buka window baru untuk print
+  const newWindow = window.open("", "", "width=900,height=700");
+  newWindow.document.write(`
+    <html>
+    <head>
+      <title>Cetak Data Kokurikulum - SK Datuk Nan Kaya</title>
+      <style>
+        body { font-family: Arial; padding:20px; }
+        h2 { text-align:center; }
+        table { width:100%; border-collapse: collapse; margin-top:15px; }
+        th, td { border:1px solid #ccc; padding:8px; }
+        th { background:#2980b9; color:white; text-align:center; }
+        td { text-align:left; }
+      </style>
+    </head>
+    <body>
+      <h2>SK Datuk Nan Kaya - Data Kokurikulum</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Kelas</th>
+            <th>Nama Murid</th>
+            <th>No MyKid</th>
+            <th>Unit Beruniform</th>
+            <th>Kelab / Persatuan</th>
+            <th>Sukan / Permainan</th>
+            <th>Rumah Sukan</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${tableContent}
+        </tbody>
+      </table>
+      <script>
+        window.print();
+      </script>
+    </body>
+    </html>
+  `);
 }
 
 // Jalankan bila page load
